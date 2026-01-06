@@ -3,99 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Azure Cloud Explorer | AZ-900 Cheat Sheet & Quiz</title>
+    <title>Badreddine Boufangha | Azure Cloud Explorer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Segoe+UI&display=swap');
 
-        /* FIX 1: Strict Height Controls */
+        /* --- GLOBAL LAYOUT --- */
         html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Stop the body itself from scrolling */
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
+            height: 100%; margin: 0; padding: 0; overflow: hidden;
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+            background-color: #f8fafc; color: #334155;
         }
+        body { height: 100dvh; display: flex; flex-direction: column; }
+        .scroll-area { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
 
-        /* FIX 2: Use Dynamic Viewport Height for mobile browsers */
-        body {
-            height: 100dvh; 
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* FIX 3: Smooth scrolling on iOS */
-        .scroll-area {
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior-y: contain; /* Prevents pull-to-refresh interfering */
-        }
-
-        /* Custom Scrollbar for PC */
+        /* --- UI COMPONENTS --- */
         @media (min-width: 768px) {
-            ::-webkit-scrollbar { width: 8px; }
-            ::-webkit-scrollbar-track { background: #f1f5f9; }
-            ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+            ::-webkit-scrollbar { width: 6px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
             ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         }
+        
+        .nav-pill { transition: all 0.2s ease; }
+        .nav-pill.active { background-color: #0078D4; color: white; box-shadow: 0 4px 6px -1px rgba(0, 120, 212, 0.3); }
 
-        /* Card Styles */
-        .service-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 4px solid transparent;
-            -webkit-tap-highlight-color: transparent;
-        }
+        .service-card { transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid transparent; -webkit-tap-highlight-color: transparent; }
         .service-card:active { transform: scale(0.98); }
-        .service-card.active {
-            border-left-color: #0ea5e9;
-            background-color: #ffffff;
-            border-color: #0ea5e9;
-        }
+        .service-card.active { border-left-color: #0078D4; background-color: #ffffff; border-color: #0078D4; }
         @media (min-width: 768px) {
-            .service-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            }
+            .service-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         }
 
-        /* Chart */
-        .chart-container {
-            position: relative;
-            width: 100%;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-        }
-
-        /* Nav Pills */
-        .nav-pill { transition: all 0.3s ease; }
-        .nav-pill.active {
-            background-color: #0ea5e9;
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.3);
-        }
-
-        /* Quiz Styles */
-        .quiz-option { transition: all 0.2s; }
-        .quiz-option:active { background-color: #f0f9ff; }
-        .quiz-option.correct { border-color: #10b981 !important; background-color: #d1fae5 !important; color: #065f46; }
-        .quiz-option.wrong { border-color: #ef4444 !important; background-color: #fee2e2 !important; color: #991b1b; }
-        .disabled { pointer-events: none; opacity: 0.7; }
-
-        /* Detail Panel Animation */
+        /* Animations */
         #detail-panel { transition: transform 0.3s ease-in-out; }
         .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .xp-float {
-            position: absolute; color: #fbbf24; font-weight: bold; font-size: 1.5rem;
-            animation: popUp 1.5s forwards; pointer-events: none; z-index: 50;
-        }
-        @keyframes popUp { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -106,24 +51,26 @@
                 <span class="text-2xl">☁️</span>
                 <div>
                     <h1 class="font-bold text-sm md:text-lg text-slate-800 leading-tight">Azure Explorer</h1>
-                    <p class="text-[10px] text-slate-500 font-medium">AZ-900 Prep</p>
+                    <p class="text-[10px] text-slate-500 font-medium hidden xs:block">AZ-900 Prep</p>
                 </div>
             </div>
             
-            <div class="flex bg-slate-100 p-1 rounded-lg mx-2">
-                <button onclick="switchMode('explorer')" id="btn-explorer" class="nav-pill active px-3 py-1 text-xs font-bold rounded-md text-slate-600">Explorer</button>
-                <button onclick="switchMode('quiz')" id="btn-quiz" class="nav-pill px-3 py-1 text-xs font-bold rounded-md text-slate-600 flex items-center gap-1">
+            <div class="flex bg-slate-100 p-1 rounded-lg mx-2 overflow-x-auto">
+                <button onclick="switchMode('explorer')" id="btn-explorer" class="nav-pill active px-3 py-1 text-xs font-bold rounded-md text-slate-600 whitespace-nowrap">Explorer</button>
+                <button onclick="switchMode('quiz')" id="btn-quiz" class="nav-pill px-3 py-1 text-xs font-bold rounded-md text-slate-600 flex items-center gap-1 whitespace-nowrap mx-1">
                     <span>⚔️ Quiz</span>
+                </button>
+                <button onclick="switchMode('profile')" id="btn-profile" class="nav-pill px-3 py-1 text-xs font-bold rounded-md text-slate-600 flex items-center gap-1 whitespace-nowrap">
+                    <span>👤 Profile</span>
                 </button>
             </div>
 
-            <div id="header-tools" class="flex-1 flex justify-end items-center gap-2">
+            <div id="header-tools" class="flex-1 flex justify-end items-center gap-2 min-w-0">
                 <div id="desktop-search" class="hidden md:block relative w-48 lg:w-64">
-                    <input type="text" id="search-input" placeholder="Search..." 
-                        class="w-full bg-slate-100 border-none rounded-md py-1.5 px-3 pl-8 text-sm focus:ring-2 focus:ring-sky-500">
+                    <input type="text" id="search-input" placeholder="Search services..." class="w-full bg-slate-100 border-none rounded-md py-1.5 px-3 pl-8 text-sm focus:ring-2 focus:ring-sky-500 transition-all">
                     <span class="absolute left-2.5 top-1.5 text-slate-400 text-sm">🔍</span>
                 </div>
-                <div class="bg-amber-50 text-amber-600 px-2 py-1 rounded-lg font-bold border border-amber-100 flex items-center gap-1 text-xs whitespace-nowrap">
+                <div id="xp-display" class="bg-amber-50 text-amber-600 px-2 py-1 rounded-lg font-bold border border-amber-100 flex items-center gap-1 text-xs whitespace-nowrap hidden sm:flex">
                     <span>⚡</span> <span id="user-xp">0</span>
                 </div>
             </div>
@@ -133,53 +80,44 @@
     <div id="app-content" class="flex-1 flex overflow-hidden relative w-full">
 
         <div id="view-explorer" class="w-full h-full flex flex-col md:flex-row relative">
-            
             <aside class="hidden md:flex w-64 bg-white border-r border-slate-200 flex-col flex-none z-10">
                 <div class="p-4 border-b border-slate-100 flex-none">
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categories</h2>
                     <div id="category-list" class="space-y-1 overflow-y-auto max-h-[60vh]"></div>
                 </div>
                 <div class="mt-auto p-4 bg-slate-50 border-t border-slate-200">
-                    <div class="chart-container">
-                        <canvas id="categoryChart"></canvas>
-                    </div>
+                    <div class="chart-container relative h-40 w-full flex justify-center"><canvas id="categoryChart"></canvas></div>
                 </div>
             </aside>
-
             <div class="flex-1 flex flex-col min-w-0 bg-slate-50 h-full relative">
-                
                 <div class="md:hidden bg-white border-b border-slate-200 flex-none z-20">
                     <div class="p-2 border-b border-slate-100">
-                        <input type="text" id="mobile-search" placeholder="Search services..." 
-                            class="w-full bg-slate-100 border-none rounded-lg py-2 px-3 pl-9 text-sm focus:ring-2 focus:ring-sky-500">
-                        </div>
+                        <input type="text" id="mobile-search" placeholder="Search..." class="w-full bg-slate-100 border-none rounded-lg py-2 px-3 pl-9 text-sm focus:ring-2 focus:ring-sky-500">
+                        <span class="absolute left-4 top-4 text-slate-400 text-sm">🔍</span>
+                    </div>
                     <div id="mobile-category-list" class="flex overflow-x-auto gap-2 p-2 whitespace-nowrap scroll-area"></div>
                 </div>
-
                 <main class="flex-1 scroll-area p-4 pb-24 md:p-6" id="main-scroll">
-                    <div class="max-w-5xl mx-auto">
+                    <div class="max-w-6xl mx-auto">
                         <div class="mb-4">
                             <h2 id="current-category-title" class="text-xl font-bold text-slate-800">All Services</h2>
                             <p id="category-desc" class="text-xs text-slate-500">Select a card to view details.</p>
                         </div>
-                        <div id="services-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                        <div id="services-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"></div>
                     </div>
                 </main>
             </div>
-
-            <aside id="detail-panel" class="absolute inset-0 z-40 bg-white transform translate-x-full transition-transform duration-300 flex flex-col md:relative md:translate-x-0 md:w-96 md:border-l md:border-slate-200 md:shadow-none hidden">
+            <aside id="detail-panel" class="absolute inset-0 z-50 bg-white transform translate-x-full flex flex-col md:relative md:translate-x-0 md:w-96 md:border-l md:border-slate-200 md:shadow-none hidden">
                 <div class="flex items-center justify-between p-4 border-b border-slate-100 md:hidden bg-white flex-none">
                     <span class="font-bold text-slate-700">Detail View</span>
                     <button id="close-detail" class="bg-slate-100 p-2 rounded-full text-slate-600">✕</button>
                 </div>
-
                 <div class="flex-1 scroll-area p-5 md:p-6 pb-20">
                     <div id="detail-placeholder" class="h-full flex flex-col items-center justify-center text-slate-400 text-center">
                         <span class="text-4xl mb-2">👈</span>
                         <p class="text-sm">Select a topic</p>
                     </div>
-
-                    <div id="detail-content" class="hidden">
+                    <div id="detail-content" class="hidden fade-in">
                         <div class="flex items-start gap-3 mb-6">
                             <div id="detail-icon" class="w-12 h-12 rounded-lg bg-sky-50 flex items-center justify-center text-2xl flex-none border border-sky-100"></div>
                             <div>
@@ -187,7 +125,6 @@
                                 <h2 id="detail-title" class="text-xl font-bold text-slate-800 mt-1 leading-tight"></h2>
                             </div>
                         </div>
-                        
                         <div class="space-y-6">
                             <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
                                 <h3 class="text-xs font-bold text-slate-900 uppercase mb-1">Explanation</h3>
@@ -205,57 +142,93 @@
 
         <div id="view-quiz" class="hidden w-full h-full flex-col bg-slate-50 relative">
             <div class="flex-1 scroll-area p-4 pb-20 flex flex-col items-center">
-                
                 <div id="quiz-setup" class="w-full max-w-2xl mt-8">
-                    <div class="text-center mb-8">
-                        <span class="text-5xl">🎓</span>
-                        <h2 class="text-2xl font-bold text-slate-800 mt-2">Quiz Mode</h2>
-                        <p class="text-sm text-slate-500">Choose your challenge</p>
-                    </div>
+                    <div class="text-center mb-8"><span class="text-5xl">🎓</span><h2 class="text-2xl font-bold text-slate-800 mt-2">Quiz Mode</h2><p class="text-sm text-slate-500">Test your knowledge</p></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <button onclick="startQuiz(15)" class="bg-white p-4 rounded-xl border border-slate-200 text-left hover:border-sky-500 transition-colors shadow-sm">
-                            <h3 class="font-bold text-slate-800">⚡ 15 Questions</h3>
-                            <p class="text-xs text-slate-500">Quick refresh</p>
-                        </button>
-                        <button onclick="startQuiz(30)" class="bg-white p-4 rounded-xl border border-slate-200 text-left hover:border-sky-500 transition-colors shadow-sm">
-                            <h3 class="font-bold text-slate-800">🧠 30 Questions</h3>
-                            <p class="text-xs text-slate-500">Standard test</p>
-                        </button>
-                        <button onclick="startQuiz('all')" class="bg-white p-4 rounded-xl border border-slate-200 text-left hover:border-sky-500 transition-colors shadow-sm md:col-span-2">
-                            <h3 class="font-bold text-slate-800">🏆 All Questions</h3>
-                            <p class="text-xs text-slate-500">The full marathon</p>
-                        </button>
+                        <button onclick="startQuiz(15)" class="bg-white p-4 rounded-xl border border-slate-200 text-left hover:border-sky-500 transition-colors shadow-sm"><h3 class="font-bold text-slate-800">⚡ 15 Questions</h3><p class="text-xs text-slate-500">Quick refresh</p></button>
+                        <button onclick="startQuiz(30)" class="bg-white p-4 rounded-xl border border-slate-200 text-left hover:border-sky-500 transition-colors shadow-sm"><h3 class="font-bold text-slate-800">🧠 30 Questions</h3><p class="text-xs text-slate-500">Standard test</p></button>
+                        <button onclick="startQuiz('all')" class="bg-white p-4 rounded-xl border border-slate-200 text-left hover:border-sky-500 transition-colors shadow-sm md:col-span-2"><h3 class="font-bold text-slate-800">🏆 All Questions</h3><p class="text-xs text-slate-500">The full marathon</p></button>
                     </div>
                 </div>
-
                 <div id="quiz-active" class="hidden w-full max-w-2xl mt-4">
-                    <div class="flex justify-between items-end mb-2 px-1">
-                        <span class="text-xs font-bold text-slate-400 uppercase">Q <span id="q-current">1</span>/<span id="q-total">0</span></span>
-                        <span class="text-xs font-bold text-orange-500 uppercase">Streak: <span id="q-streak">0</span> 🔥</span>
-                    </div>
-                    <div class="w-full bg-slate-200 rounded-full h-1.5 mb-6">
-                        <div id="q-progress" class="bg-sky-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-
+                    <div class="flex justify-between items-end mb-2 px-1"><span class="text-xs font-bold text-slate-400 uppercase">Q <span id="q-current">1</span>/<span id="q-total">0</span></span><span class="text-xs font-bold text-orange-500 uppercase">Streak: <span id="q-streak">0</span> 🔥</span></div>
+                    <div class="w-full bg-slate-200 rounded-full h-1.5 mb-6"><div id="q-progress" class="bg-sky-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div></div>
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative">
                         <div id="xp-notifier" class="hidden absolute top-4 right-4"></div>
                         <h3 id="q-text" class="text-lg font-bold text-slate-800 mb-6 leading-snug">Loading...</h3>
                         <div id="q-options" class="space-y-3"></div>
-                        
-                        <div id="q-explanation" class="hidden mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100 text-sm text-slate-700 fade-in">
-                            <strong class="block text-blue-700 text-xs uppercase mb-1">Explanation</strong>
-                            <span id="q-expl-text"></span>
-                        </div>
+                        <div id="q-explanation" class="hidden mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100 text-sm text-slate-700 fade-in"><strong class="block text-blue-700 text-xs uppercase mb-1">Explanation</strong><span id="q-expl-text"></span></div>
                     </div>
+                    <div class="mt-6 flex justify-between items-center"><button onclick="switchMode('quiz')" class="text-slate-400 text-xs hover:text-slate-600">Quit</button><button id="btn-next-q" onclick="nextQuestion()" class="hidden bg-sky-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-sky-200 active:scale-95 transition-transform">Next →</button></div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="mt-6 flex justify-between items-center">
-                        <button onclick="switchMode('quiz')" class="text-slate-400 text-xs hover:text-slate-600">Quit</button>
-                        <button id="btn-next-q" onclick="nextQuestion()" class="hidden bg-sky-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-sky-200 active:scale-95 transition-transform">Next →</button>
+        <div id="view-profile" class="hidden w-full h-full bg-slate-50 flex-col overflow-y-auto scroll-area">
+            <div class="w-full max-w-5xl mx-auto p-4 md:p-10 pb-20">
+                
+                <div class="flex flex-col md:flex-row gap-6 mb-8 items-center md:items-start bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="w-24 h-24 bg-sky-100 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-md relative shrink-0">
+                        <span id="profile-placeholder" class="text-4xl">👨‍💻</span>
+                        <img id="profile-image" src="" alt="Profile" class="absolute inset-0 w-full h-full object-cover hidden" onerror="this.style.display='none'; document.getElementById('profile-placeholder').style.display='flex';">
+                    </div>
+                    
+                    <div class="text-center md:text-left flex-1">
+                        <h2 class="text-2xl font-bold text-slate-800">Badreddine Boufangha</h2>
+                        <p class="text-slate-500 font-medium">Ingénieur Informatique et Réseaux</p>
+                        <p class="text-slate-400 text-xs mt-1">Casablanca • 06 41 82 62 22</p>
+                        
+                        <div class="flex flex-wrap gap-3 mt-4 justify-center md:justify-start">
+                            <a href="https://www.linkedin.com/in/badreddine-boufangha/" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-[#0077b5] text-white rounded-lg text-sm font-bold hover:bg-[#006396] transition-colors shadow-sm">
+                                <span>LinkedIn</span>
+                            </a>
+                            <a href="https://github.com/toxicell" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-[#333] text-white rounded-lg text-sm font-bold hover:bg-[#222] transition-colors shadow-sm">
+                                <span>GitHub</span>
+                            </a>
+                            <a href="https://learn.microsoft.com/en-us/users/badreddineboufangha/transcript" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors shadow-sm">
+                                <span>Verify Cert (AZ-900)</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
+                <div class="flex flex-col gap-6">
+                    
+                    <div class="w-full bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">About Me</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            Ingénieur Informatique et Réseaux (MIAGE) with a Master's in Big Data (MBDS). Specialized in Data Engineering with strong expertise in Azure Cloud, Hadoop, and Spark. Passionate about building secure Data Lakes and scalable ELT pipelines.
+                        </p>
+                    </div>
+
+                    <div class="w-full bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[800px]"> 
+                        <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center flex-none">
+                            <div class="flex items-center gap-3">
+                                <h3 class="font-bold text-slate-700">Curriculum Vitae</h3>
+                                <a id="btn-download" href="#" target="_blank" class="text-xs text-sky-600 hover:underline flex items-center gap-1">
+                                    <span>↗️ Open in Drive</span>
+                                </a>
+                            </div>
+                            
+                            <div class="bg-white border border-slate-200 rounded-lg p-1 flex">
+                                <button onclick="setLang('en')" id="btn-en" class="px-3 py-1 rounded text-xs font-bold bg-sky-100 text-sky-700">English</button>
+                                <button onclick="setLang('fr')" id="btn-fr" class="px-3 py-1 rounded text-xs font-bold text-slate-500 hover:bg-slate-50">Français</button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 bg-slate-200 relative">
+                            <iframe 
+                                id="cv-frame" 
+                                src="" 
+                                class="w-full h-full border-none"
+                                title="CV Viewer">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
 
     <script>
@@ -2026,131 +1999,137 @@
 
         
 
-        // --- STATE MANAGEMENT ---
+       
+
+       // --- STATE & DOM ---
         const state = { mode: 'explorer', xp: 0, quiz: { currentIdx: 0, score: 0, streak: 0, questions: [], pool: rawQuizQuestions } };
 
+        const cvPaths = {
+            en: 'https://drive.google.com/file/d/15GbnPn_dziG4PR5NLZ-Fq8V0pqaSzcMb/preview',
+            fr: 'https://drive.google.com/file/d/1KcNTeSy8zZ3awcLozF4axLzSN5lhkHHl/preview'
+        };
+
+        // --- GOOGLE DRIVE IMAGE CONFIG ---
+        const profilePicID = "14LnZ0uk5nAMIezr10aLUME4KCt34onUh"; // UPDATED ID
+        const profilePicUrl = `https://drive.google.com/uc?export=view&id=${profilePicID}`;
+
         const dom = {
-            views: { explorer: document.getElementById('view-explorer'), quiz: document.getElementById('view-quiz') },
-            nav: { explorer: document.getElementById('btn-explorer'), quiz: document.getElementById('btn-quiz'), search: document.getElementById('search-input'), mSearch: document.getElementById('mobile-search'), xp: document.getElementById('user-xp') },
+            views: { explorer: document.getElementById('view-explorer'), quiz: document.getElementById('view-quiz'), profile: document.getElementById('view-profile') },
+            nav: { explorer: document.getElementById('btn-explorer'), quiz: document.getElementById('btn-quiz'), profile: document.getElementById('btn-profile'), search: document.getElementById('search-input'), mSearch: document.getElementById('mobile-search'), xp: document.getElementById('user-xp'), xpDisplay: document.getElementById('xp-display') },
             explorer: {
                 catList: document.getElementById('category-list'), mCatList: document.getElementById('mobile-category-list'), grid: document.getElementById('services-grid'), chart: document.getElementById('categoryChart'),
                 detail: { panel: document.getElementById('detail-panel'), placeholder: document.getElementById('detail-placeholder'), content: document.getElementById('detail-content'), icon: document.getElementById('detail-icon'), cat: document.getElementById('detail-category'), title: document.getElementById('detail-title'), desc: document.getElementById('detail-desc'), facts: document.getElementById('detail-facts'), close: document.getElementById('close-detail') },
                 header: { title: document.getElementById('current-category-title') }
             },
             quiz: {
-                setup: document.getElementById('quiz-setup'), active: document.getElementById('quiz-active'), current: document.getElementById('q-current'), total: document.getElementById('q-total'), streak: document.getElementById('q-streak'), progress: document.getElementById('q-progress'), text: document.getElementById('q-text'), options: document.getElementById('q-options'), expl: document.getElementById('q-explanation'), explText: document.getElementById('q-expl-text'), nextBtn: document.getElementById('btn-next-q'), notifier: document.getElementById('xp-notifier')
+                setup: document.getElementById('quiz-setup'), active: document.getElementById('quiz-active'), current: document.getElementById('q-current'), total: document.getElementById('q-total'), streak: document.getElementById('q-streak'), progress: document.getElementById('q-progress'), text: document.getElementById('q-text'), options: document.getElementById('q-options'), expl: document.getElementById('q-explanation'), explText: document.getElementById('q-expl-text'), nextBtn: document.getElementById('btn-next-q')
+            },
+            profile: { 
+                cvFrame: document.getElementById('cv-frame'), 
+                downloadBtn: document.getElementById('btn-download'),
+                btnEn: document.getElementById('btn-en'), 
+                btnFr: document.getElementById('btn-fr'),
+                img: document.getElementById('profile-image'),
+                placeholder: document.getElementById('profile-placeholder')
+            }            
+        };
+
+        // --- PROFILE LOGIC ---
+        window.setLang = (lang) => {
+            const path = cvPaths[lang];
+            dom.profile.cvFrame.src = path;
+            dom.profile.downloadBtn.href = path.replace('/preview', '/view');
+            dom.profile.downloadBtn.target = "_blank";
+            dom.profile.downloadBtn.innerHTML = "<span>↗️ Open in Drive</span>";
+
+            if(lang === 'en') {
+                dom.profile.btnEn.className = "px-3 py-1 rounded text-xs font-bold bg-sky-100 text-sky-700 shadow-sm border border-sky-200 transition-all";
+                dom.profile.btnFr.className = "px-3 py-1 rounded text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all";
+            } else {
+                dom.profile.btnFr.className = "px-3 py-1 rounded text-xs font-bold bg-sky-100 text-sky-700 shadow-sm border border-sky-200 transition-all";
+                dom.profile.btnEn.className = "px-3 py-1 rounded text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all";
             }
         };
 
         // --- INIT ---
-        let currentCat = 'All';
-        let searchQuery = '';
+        let currentCat = 'All', searchQuery = '';
 
         function init() {
-            renderCats(); renderGrid(); initChart();
+            renderCats(); renderGrid(); initChart(); setLang('en');
             
-            // Event Listeners
+            if (profilePicID) {
+                dom.profile.img.src = profilePicUrl;
+                dom.profile.img.classList.remove('hidden');
+                dom.profile.placeholder.style.display = 'none';
+            }
+
             const handleSearch = (e) => { searchQuery = e.target.value.toLowerCase(); renderGrid(); };
             dom.nav.search.addEventListener('input', handleSearch);
             dom.nav.mSearch.addEventListener('input', handleSearch);
 
             dom.explorer.detail.close.addEventListener('click', () => {
                 dom.explorer.detail.panel.classList.add('translate-x-full', 'hidden');
-                // Deselect active cards
                 document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active', 'ring-2', 'ring-sky-500'));
             });
         }
 
         window.switchMode = (mode) => {
             state.mode = mode;
+            [dom.nav.explorer, dom.nav.quiz, dom.nav.profile].forEach(b => b.classList.remove('active'));
+            [dom.views.explorer, dom.views.quiz, dom.views.profile].forEach(v => v.classList.add('hidden'));
+
             if (mode === 'explorer') {
-                dom.nav.explorer.classList.add('active'); dom.nav.quiz.classList.remove('active');
-                dom.views.explorer.classList.remove('hidden'); dom.views.quiz.classList.add('hidden');
+                dom.nav.explorer.classList.add('active'); dom.views.explorer.classList.remove('hidden');
                 document.getElementById('desktop-search').classList.remove('hidden');
-            } else {
-                dom.nav.explorer.classList.remove('active'); dom.nav.quiz.classList.add('active');
-                dom.views.explorer.classList.add('hidden'); dom.views.quiz.classList.remove('hidden');
+                dom.nav.xpDisplay.classList.add('hidden'); dom.nav.xpDisplay.classList.remove('sm:flex');
+            } else if (mode === 'quiz') {
+                dom.nav.quiz.classList.add('active'); dom.views.quiz.classList.remove('hidden'); dom.views.quiz.classList.add('flex');
                 document.getElementById('desktop-search').classList.add('hidden');
+                dom.nav.xpDisplay.classList.remove('hidden'); dom.nav.xpDisplay.classList.add('sm:flex');
                 showQuizSetup();
+            } else if (mode === 'profile') {
+                dom.nav.profile.classList.add('active'); dom.views.profile.classList.remove('hidden'); dom.views.profile.classList.add('flex');
+                document.getElementById('desktop-search').classList.add('hidden');
+                dom.nav.xpDisplay.classList.add('hidden'); dom.nav.xpDisplay.classList.remove('sm:flex');
             }
         };
 
-        // --- EXPLORER ---
+        // --- EXPLORER LOGIC ---
         function renderCats() {
             const cats = ['All', ...new Set(azureData.map(i => i.category))];
-            
-            // Desktop Sidebar
-            dom.explorer.catList.innerHTML = cats.map(c => `
-                <button onclick="setCat('${c}')" class="w-full text-left px-3 py-2 rounded-md text-sm text-slate-600 hover:bg-slate-100 transition-colors ${c === currentCat ? 'bg-sky-50 text-sky-700 font-bold' : ''}">
-                    ${c}
-                </button>
-            `).join('');
-
-            // Mobile Horizontal Scroll
-            dom.explorer.mCatList.innerHTML = cats.map(c => `
-                <button onclick="setCat('${c}')" class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${c === currentCat ? 'bg-sky-500 text-white border-sky-500' : 'bg-white text-slate-600 border-slate-200'}">
-                    ${c}
-                </button>
-            `).join('');
+            dom.explorer.catList.innerHTML = cats.map(c => `<button onclick="setCat('${c}')" class="w-full text-left px-3 py-2 rounded-md text-sm text-slate-600 hover:bg-slate-100 transition-colors ${c === currentCat ? 'bg-sky-50 text-sky-700 font-bold' : ''}">${c}</button>`).join('');
+            dom.explorer.mCatList.innerHTML = cats.map(c => `<button onclick="setCat('${c}')" class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${c === currentCat ? 'bg-sky-500 text-white border-sky-500' : 'bg-white text-slate-600 border-slate-200'}">${c}</button>`).join('');
         }
-
         window.setCat = (c) => { currentCat = c; renderCats(); renderGrid(); dom.explorer.header.title.textContent = c === 'All' ? 'All Services' : c; };
 
         function renderGrid() {
             dom.explorer.grid.innerHTML = '';
             const filtered = azureData.filter(i => (currentCat === 'All' || i.category === currentCat) && (i.name.toLowerCase().includes(searchQuery) || i.category.toLowerCase().includes(searchQuery)));
-            
-            if(filtered.length === 0) {
-                dom.explorer.grid.innerHTML = `<div class="col-span-full text-center py-10 opacity-50"><div class="text-4xl">🔭</div><p>No results</p></div>`;
-                return;
-            }
-
+            if(filtered.length === 0) { dom.explorer.grid.innerHTML = `<div class="col-span-full text-center py-10 opacity-50"><div class="text-4xl">🔭</div><p>No results</p></div>`; return; }
             filtered.forEach(item => {
                 const el = document.createElement('div');
                 el.className = 'service-card bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-pointer hover:border-sky-300';
-                el.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="text-2xl bg-slate-50 w-10 h-10 flex items-center justify-center rounded-lg">${item.icon}</span>
-                        <span class="text-[10px] font-bold uppercase bg-slate-100 text-slate-500 px-2 py-1 rounded-full">${item.category}</span>
-                    </div>
-                    <h3 class="font-bold text-slate-800">${item.name}</h3>
-                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.desc}</p>
-                `;
+                el.innerHTML = `<div class="flex justify-between items-start mb-3"><span class="text-2xl bg-slate-50 w-10 h-10 flex items-center justify-center rounded-lg">${item.icon}</span><span class="text-[10px] font-bold uppercase bg-slate-100 text-slate-500 px-2 py-1 rounded-full">${item.category}</span></div><h3 class="font-bold text-slate-800">${item.name}</h3><p class="text-xs text-slate-500 mt-1 line-clamp-2">${item.desc}</p>`;
                 el.onclick = () => showDetail(item, el);
                 dom.explorer.grid.appendChild(el);
             });
         }
-
         function showDetail(item, cardEl) {
-            // Visual feedback on grid
             document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active', 'ring-2', 'ring-sky-500'));
             cardEl.classList.add('active', 'ring-2', 'ring-sky-500');
-
-            // Populate
             const d = dom.explorer.detail;
             d.icon.textContent = item.icon; d.cat.textContent = item.category; d.title.textContent = item.name; d.desc.textContent = item.desc;
             d.facts.innerHTML = item.facts.map(f => `<li class="text-xs text-slate-600 flex items-start gap-2"><span class="text-sky-500 mt-0.5">•</span> <span>${f}</span></li>`).join('');
-            
-            d.placeholder.classList.add('hidden');
-            d.content.classList.remove('hidden');
-            
-            // Show Panel (Mobile: Slide in, Desktop: Always visible right col)
-            // We use the 'hidden' class on the aside to control visibility initially
-            d.panel.classList.remove('hidden'); 
-            
-            // Slight delay to allow display:block to render before transform for animation
-            requestAnimationFrame(() => {
-                d.panel.classList.remove('translate-x-full');
-            });
+            d.placeholder.classList.add('hidden'); d.content.classList.remove('hidden');
+            d.panel.classList.remove('hidden'); requestAnimationFrame(() => { d.panel.classList.remove('translate-x-full'); });
         }
-
         function initChart() {
             const ctx = dom.explorer.chart.getContext('2d');
             const counts = {}; azureData.forEach(d => counts[d.category] = (counts[d.category] || 0) + 1);
             new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#0ea5e9', '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } });
         }
 
-        // --- QUIZ ---
+        // --- QUIZ LOGIC ---
         function showQuizSetup() { dom.quiz.setup.classList.remove('hidden'); dom.quiz.active.classList.add('hidden'); }
         window.startQuiz = (count) => {
             let limit = count === 'all' ? state.quiz.pool.length : Math.min(count, state.quiz.pool.length);
@@ -2160,51 +2139,22 @@
             dom.quiz.setup.classList.add('hidden'); dom.quiz.active.classList.remove('hidden');
             loadQ();
         }
-
         function loadQ() {
             const q = state.quiz.questions[state.quiz.currentIdx];
             dom.quiz.current.textContent = state.quiz.currentIdx + 1;
             dom.quiz.progress.style.width = `${(state.quiz.currentIdx / state.quiz.questions.length) * 100}%`;
-            dom.quiz.text.textContent = q.q;
-            dom.quiz.expl.classList.add('hidden'); dom.quiz.nextBtn.classList.add('hidden');
-            dom.quiz.options.innerHTML = q.opts.map((o, i) => `
-                <button onclick="check(${i})" class="quiz-option w-full text-left p-4 rounded-lg border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 text-sm">
-                    ${o}
-                </button>
-            `).join('');
+            dom.quiz.text.textContent = q.q; dom.quiz.expl.classList.add('hidden'); dom.quiz.nextBtn.classList.add('hidden');
+            dom.quiz.options.innerHTML = q.opts.map((o, i) => `<button onclick="check(${i})" class="quiz-option w-full text-left p-4 rounded-lg border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 text-sm transition-colors">${o}</button>`).join('');
         }
-
         window.check = (idx) => {
-            const q = state.quiz.questions[state.quiz.currentIdx];
-            const btns = dom.quiz.options.children;
-            Array.from(btns).forEach(b => b.classList.add('disabled'));
-            
-            if(idx === q.a) {
-                btns[idx].classList.add('correct');
-                state.quiz.streak++;
-                state.xp += 50;
-                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-            } else {
-                btns[idx].classList.add('wrong');
-                btns[q.a].classList.add('correct');
-                state.quiz.streak = 0;
-            }
-            
-            dom.nav.xp.textContent = state.xp;
-            dom.quiz.streak.textContent = state.quiz.streak;
-            dom.quiz.explText.textContent = q.expl;
-            dom.quiz.expl.classList.remove('hidden');
-            dom.quiz.nextBtn.classList.remove('hidden');
+            const q = state.quiz.questions[state.quiz.currentIdx]; const btns = dom.quiz.options.children; Array.from(btns).forEach(b => b.classList.add('disabled', 'opacity-70'));
+            if(idx === q.a) { btns[idx].classList.add('correct', 'bg-green-50', 'border-green-500'); state.quiz.streak++; state.xp += 50; confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); } 
+            else { btns[idx].classList.add('wrong', 'bg-red-50', 'border-red-500'); btns[q.a].classList.add('correct', 'bg-green-50', 'border-green-500'); state.quiz.streak = 0; }
+            dom.nav.xp.textContent = state.xp; dom.quiz.streak.textContent = state.quiz.streak; dom.quiz.explText.textContent = q.expl; dom.quiz.expl.classList.remove('hidden'); dom.quiz.nextBtn.classList.remove('hidden');
         };
-
         window.nextQuestion = () => {
-            state.quiz.currentIdx++;
-            if(state.quiz.currentIdx < state.quiz.questions.length) loadQ();
-            else {
-                dom.quiz.text.textContent = "🎉 Quiz Complete!";
-                dom.quiz.options.innerHTML = `<div class="text-center p-6"><button onclick="showQuizSetup()" class="bg-sky-600 text-white px-6 py-2 rounded-lg">New Quiz</button></div>`;
-                dom.quiz.expl.classList.add('hidden'); dom.quiz.nextBtn.classList.add('hidden');
-            }
+            state.quiz.currentIdx++; if(state.quiz.currentIdx < state.quiz.questions.length) loadQ();
+            else { dom.quiz.text.textContent = "🎉 Quiz Complete!"; dom.quiz.options.innerHTML = `<div class="text-center p-6"><button onclick="showQuizSetup()" class="bg-sky-600 text-white px-6 py-2 rounded-lg font-bold">New Quiz</button></div>`; dom.quiz.expl.classList.add('hidden'); dom.quiz.nextBtn.classList.add('hidden'); }
         };
 
         init();
